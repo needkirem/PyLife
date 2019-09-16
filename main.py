@@ -32,36 +32,15 @@ def random_gen():
     return np.random.choice([0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], size=(WORK_SPACE, WORK_SPACE))
 
 
-def alarm_gen():
+def file_gen(filename):
+    # Первое число файла: n - кол-во элементов в строке и кол-во столбцов
     matrix = np.zeros(shape=(WORK_SPACE, WORK_SPACE))
-    matrix[WIDTH // K // 2 + 2 - 1][4] = 1
-    matrix[WIDTH // K // 2 + 2][3] = 1
-    matrix[WIDTH // K // 2 + 2][4] = 1
-    matrix[WIDTH // K // 2 + 2][5] = 1
-    return matrix
-
-
-def pi_gen():
-    matrix = np.zeros(shape=(WORK_SPACE, WORK_SPACE))
-    matrix[WIDTH // K // 2][3 + 40] = 1
-    matrix[WIDTH // K // 2 + 1][3 + 40] = 1
-    matrix[WIDTH // K // 2][4 + 40] = 1
-    matrix[WIDTH // K // 2 + 2][3 + 40] = 1
-    matrix[WIDTH // K // 2][5 + 40] = 1
-    matrix[WIDTH // K // 2 + 1][5 + 40] = 1
-    matrix[WIDTH // K // 2 + 2][5 + 40] = 1
-    array_print(matrix)
-    return matrix
-
-
-def glider_gen():
-    matrix = np.zeros(shape=(WORK_SPACE, WORK_SPACE))
-    matrix[WIDTH // K // 2][3] = 1
-    matrix[WIDTH // K // 2 + 1][4] = 1
-    matrix[WIDTH // K // 2 + 2][2] = 1
-    matrix[WIDTH // K // 2 + 2][3] = 1
-    matrix[WIDTH // K // 2 + 2][4] = 1
-    array_print(matrix)
+    with open(filename, 'r') as file:
+        n = int(file.readline())
+        for i in range(n):
+            line = list(map(int, file.readline().split()))
+            for j in range(n):
+                matrix[i][j] = line[j]
     return matrix
 
 
@@ -96,6 +75,15 @@ def array_print(array):
     print("--------------------")
 
 
+def life_draw(life_matrix):
+    for i in range(WORK_SPACE):
+        pygame.draw.line(window, GREEN, [0, i * K], [WIDTH, i * K])
+        pygame.draw.line(window, GREEN, [i * K, 0], [i * K, WIDTH])
+        for j in range(WORK_SPACE):
+            if life_matrix[i][j] == 1:
+                pygame.draw.rect(window, BLACK, (i * K + 1, j * K + 1, K - 1, K - 1))
+
+
 def main():
     life_matrix = random_gen()  # первичная генерация
     button_event = 'step'
@@ -115,12 +103,7 @@ def main():
 
         if button_event != 'pause':
             # перерисовка живых клеток
-            for i in range(WORK_SPACE):
-                pygame.draw.line(window, GREEN, [0, i * K], [WIDTH, i * K])
-                pygame.draw.line(window, GREEN, [i * K, 0], [i * K, WIDTH])
-                for j in range(WORK_SPACE):
-                    if life_matrix[i][j] == 1:
-                        pygame.draw.rect(window, BLACK, (i * K + 1, j * K + 1, K - 1, K - 1))
+            life_draw(life_matrix)
 
             pygame.draw.rect(window, RED, button_step)
             pygame.draw.rect(window, BLUE, button_go)
